@@ -42,7 +42,7 @@
                     </div>
                     <ul class="header-menu nav">
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="nav-link">
+                            <a href="<?= base_url('home/uploadavatar') ?>" class="nav-link">
                                 <i class="nav-link-icon fa fa-database"> </i>
                                 Profile
                             </a>
@@ -67,10 +67,19 @@
                             <div class="widget-content-wrapper">
                                 <div class="widget-content-left">
                                     <div class="btn-group">
-                                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
-                                            <img width="42" class="rounded-circle" src="<?= base_url('assets/images/icon-avatar.png')?>" alt="profile pics">
-                                            <!-- <i class="fa fa-angle-down ml-2 opacity-8"></i> -->
-                                        </a>
+                                    <?php if($userdata->profile_pics != ''): ?>
+                                        <div class="btn-group">
+                                            <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
+                                                <img width="42" class="rounded-circle" src="<?= $userdata->profile_pics ?>" alt="profile pics">
+                                            </a>   
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="btn-group">
+                                            <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
+                                                <img width="42" class="rounded-circle" src="<?= base_url('assets/images/icon-avatar.png')?>" alt="profile pics">
+                                            </a>   
+                                        </div>
+                                    <?php endif ?>
                                         <!-- <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right">
                                             <button type="button" tabindex="0" class="dropdown-item">User Account</button>
                                             <button type="button" tabindex="0" class="dropdown-item">Settings</button>

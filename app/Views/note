@@ -1,0 +1,111 @@
+  public function reset_pass($uniid = null){
+           // initialize validation
+		$validation =  \Config\Services::validation();
+		//initilize form 
+		helper(['form', 'url']);
+		// initialize session data
+		$session = session();
+        $db = \Config\Database::connect();
+        $email = \Config\Services::email();
+        $UserModel = new UserModel();
+
+        $data['title'] = 'Activate Account || Store Master';
+
+        if(!empty($uniid)) {
+            $userdata = $UserModel->where('uniid', $uniid)->first();
+            if($userdata){
+                // check expiry time method
+                if($this->checkExpiryDate($userdata['updated_at'])){
+                    // $session->setFlashdata('success', 'success account!!');
+                    // return redirect()->to(base_url());
+                    if($this->request->getMethod() == 'post'){
+                        $rules = [
+                            'password' => 'required|',
+                            'confirm_password' => 'required|matches[password]'
+                        ];
+
+                        if($this->validate($rules)){
+                            $hashedPassword = password_hash($this->request->getVar('password'), PASSWORD_DEFAULT);
+                            $data = [
+                                'password' => $hashedPassword
+                            ];
+                            $update = $UserModel->updatedata($uniid, $data);
+                            if($update){
+                                $session->setFlashdata('success', 'Password updated successfully!');
+                                return redirect()->to('auth');
+                            }
+                            else{ 
+                                $session->setFlashdata('error', 'Password cannot be updated at the moment. Try again!');
+                                return redirect()->to(current_url());
+                            }
+                        }
+                        else{
+                            $data['validation'] = $this->validator;
+                        }
+                    }
+                    else{
+                        $data['error'] = 'Unauthorised access!!';
+                    }
+                }
+                else{
+                    $data['error'] = 'Reset link was  expired!!';
+                    // $session->setFlashdata('error', 'Reset link was  expired!!');
+                }
+            }
+            else{
+                $data['error'] = 'Opps! Unable to find your account!!';
+                // $session->setFlashdata('error', 'Opps! Unable to find your account!!');
+                // return redirect()->to(current_url());
+
+            }
+        }
+        else{
+            $session->setFlashdata('error', 'Opps! Unauthorised access! !');
+            // return redirect()->to(current_url());
+        }
+
+        echo view('reset_pass', $data);
+
+    }
+
+
+
+         public function reset_pass($uniid = null){
+           // initialize validation
+		$validation =  \Config\Services::validation();
+		//initilize form 
+		helper(['form', 'url']);
+		// initialize session data
+		$session = session();
+        $db = \Config\Database::connect();
+        $email = \Config\Services::email();
+        $UserModel = new UserModel();
+
+        $data['title'] = 'Activate Account || Store Master';
+
+        if(!empty($uniid)) {
+            $userdata = $UserModel->where('uniid', $uniid)->first();
+            if($userdata){
+                // check expiry time method
+                if($this->checkExpiryDate($userdata['updated_at'])){
+                    $session->setFlashdata('success', 'success account!!');
+                    // return redirect()->to(base_url());
+                }
+                else{
+                    $session->setFlashdata('error', 'Reset link was  expired!!');
+                    return redirect()->to(base_url());
+                }
+            }
+            else{
+                $session->setFlashdata('error', 'Opps! Unable to find your account!!');
+                return redirect()->to(base_url());
+            }
+        }
+        else{
+            $session->setFlashdata('error', 'Opps! Unauthorised access! !');
+            return redirect()->to(base_url());
+        }
+
+        echo view('reset_pass', $data);
+
+    }

@@ -48,6 +48,7 @@ class Home extends BaseController
 		$SupplierModel = new SupplierModel();
 		$OrderModel = new OrderModel();
 		$CustomModel = new CustomModel($db);
+		$UserModel = new UserModel();
 
 		$data['totalStock'] = $CustomModel->stock();
 		$data['totalCategory'] = $CategoryModel->findAll();
@@ -55,6 +56,7 @@ class Home extends BaseController
 		$data['totalSupplier'] = $SupplierModel->findAll();
 		$data['totalOrder'] = $OrderModel->findAll();
 		$data['allStock'] = $StockModel->findAll();
+		$data['userdata'] = $UserModel->getOne($session->get('uniid'));
 
 
 		// Rack value
@@ -132,7 +134,7 @@ class Home extends BaseController
 
 
 	//--------------------------------------------------------------------
-
+		// export csv
 	public function export(){
 		$db = \Config\Database::connect();
 		$CustomModel = new CustomModel($db);
@@ -173,6 +175,89 @@ class Home extends BaseController
 		exit;
 	}
 
+	//--------------------------------------------------------------------
+	// upload file
+	public function uploadavatar(){
+		
+		 // initialize validation
+		 $validation =  \Config\Services::validation();
+		 //initilize form 
+		 helper(['form', 'url']);
+		 // initialize session data
+		 $session = session();
+		 $db = \Config\Database::connect();
+
+		//protect url begins
+		if(!  session()->get('isLoggedIn'))
+		return  redirect()->to(base_url());
+		//protect url end
+		$data['title'] = 'Profile || StoreMaster';
+		$StoreModel = new StoreModel();
+
+		$StockModel = new StockModel();
+		$CategoryModel = new CategoryModel();
+		$UnitModel = new UnitModel();
+		$SupplierModel = new SupplierModel();
+		$OrderModel = new OrderModel();
+		$CustomModel = new CustomModel($db);
+		$UserModel = new UserModel();
+
+		$data['totalStock'] = $CustomModel->stock();
+		$data['totalCategory'] = $CategoryModel->findAll();
+		$data['totalUnit'] = $UnitModel->findAll();
+		$data['totalSupplier'] = $SupplierModel->findAll();
+		$data['totalOrder'] = $OrderModel->findAll();
+		$data['allStock'] = $StockModel->findAll();
+		$check = $UserModel->getOne($session->get('uniid'));
+		$data['userdata'] = $UserModel->getOne($session->get('uniid'));
+
+		// var_dump($data['userdetails'] ); die;
+		// var_dump($check->id); die;
+	
+
+		// begin
+
+
+		if($this->request->getMethod() == 'post'){
+
+			$rules = [
+				'avatar' => 'uploaded[avatar] |max_size[avatar,1024] |ext_in[avatar,png,jpg]'
+			];
+
+			if($this->validate($rules)){
+				$file = $this->request->getFile('avatar');
+				if($file->isValid() && !$file->hasMoved()){
+					// get random name generate random name for image
+					if($file->move(FCPATH.'public\images', $file->getRandomName())){
+						$path = base_url().'/public/images/'.$file->getName();
+						// save to db
+						$status = $UserModel->updateAvatar($session->get('uniid'), $path); 
+						if($status == true){
+							$session->setFlashdata('success', 'Avatar successfully updated');
+							return redirect()->to(current_url());
+						}
+						else{
+							$session->setFlashdata('error', 'Sorry! Unable to upload Avatar');
+							return redirect()->to(current_url());
+						}
+					}
+					else{
+						// failed
+						$session->setFlashdata('error', $file->getErrorString());
+						return redirect()->to(current_url());
+					}	 
+				}
+				else{
+					$session->setFlashdata('error', 'OPPS!, You have uploaded an invalid file');
+					return redirect()->to(current_url());
+				}
+			}
+			else{
+				$data['validation'] = $this->validator; 
+			}
+		}
+		echo view('profile', $data);
+	}
 }
 
 /**

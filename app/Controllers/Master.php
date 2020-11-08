@@ -47,6 +47,7 @@ class Master extends BaseController
 		$OrderModel = new OrderModel();
 		$CustomModel = new CustomModel($db);
 
+		// var_dump(date('Y-m-d h:i:s')); die;
 		// $data['totalStock'] = $StockModel->findAll();
 		$data['totalStock'] = $CustomModel->stock();
 		$data['totalCategory'] = $CategoryModel->findAll();
@@ -54,6 +55,8 @@ class Master extends BaseController
 		$data['totalSupplier'] = $SupplierModel->findAll();
 		$data['totalOrder'] = $OrderModel->findAll();
 		$data['allStock'] = $StockModel->findAll();
+		$UserModel = new UserModel();
+		$data['userdata'] = $UserModel->getOne($session->get('uniid'));
 
         return view('master/master', $data);
 	}
@@ -311,7 +314,8 @@ class Master extends BaseController
 
 				$StockModel->update($this->request->getPost('id'), $data);
 				$session->setFlashdata('success', 'Stock Edited');
-				return redirect()->to(base_url('master'));			}
+				return redirect()->to(base_url('master'));			
+			}
 		}
 	}
 

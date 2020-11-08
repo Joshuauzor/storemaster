@@ -46,6 +46,9 @@ class Store extends BaseController
 		$UserModel = new UserModel();
 		// custom
 		$CustomModel = new CustomModel($db);
+		// 
+		$UserModel = new UserModel();
+		$data['userdata'] = $UserModel->getOne($session->get('uniid'));
 
 		// var_dump( $CustomModel->store()); die;
 		// 
